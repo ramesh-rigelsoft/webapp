@@ -1,0 +1,7 @@
+start cmd:--npm start
+build: npm run dist
+
+
+npm run dist -- --win
+npm run dist -- --Linux
+npm run dist -- --mac

@@ -1,0 +1,29 @@
+END USER LICENSE AGREEMENT (EULA)
+
+IMPORTANT: PLEASE READ THIS LICENSE AGREEMENT CAREFULLY BEFORE INSTALLING OR USING THIS SOFTWARE.
+
+By installing or using this application ("Software"), you agree to be bound by the terms of this agreement.
+
+1. LICENSE GRANT
+You are granted a non-exclusive, non-transferable license to use this Software for personal or business purposes.
+
+2. RESTRICTIONS
+You may NOT:
+- Modify, reverse engineer, or decompile the Software
+- Distribute, sell, or rent the Software without permission
+- Use the Software for illegal purposes
+
+3. OWNERSHIP
+This Software is owned by the developer. All rights are reserved.
+
+4. DISCLAIMER
+The Software is provided "AS IS" without warranty of any kind.
+The developer is not responsible for any data loss or damages.
+
+5. TERMINATION
+This license will terminate automatically if you violate any terms.
+
+6. ACCEPTANCE
+By clicking "I Agree" or installing the Software, you confirm that you have read and accepted these terms.
+
+--- END OF AGREEMENT ---

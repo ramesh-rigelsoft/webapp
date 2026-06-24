@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>My Electron App</title>
+  <link rel="icon" href="./logo.ico" type="image/x-icon">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body style="background: green;">
+
+  <!-- Custom Header -->
+  <div class="titlebar">
+    <div class="title">RigelEIMS</div>
+
+    <div class="controls">
+      <button onclick="window.electron.minimize()">➖</button>
+      <!-- <button onclick="window.electron.maximize()">🗖</button> -->
+      <button onclick="window.electron.close()">❌</button>
+    </div>
+  </div>
+
+  <!-- Localhost App -->
+  <iframe
+    src="http://localhost:8091"
+    class="app-frame">
+  </iframe>
+
+  <script src="./script.js"></script>
+
+</body>
+</html>
