@@ -1,9 +1,21 @@
+const { contextBridge, ipcRenderer } = require("electron");
 
-const { contextBridge, ipcRenderer } = require('electron');
+contextBridge.exposeInMainWorld("electronAPI", {
+  openGSTPortal: (gst) =>
+    ipcRenderer.invoke("open-gst-portal", gst),
 
-contextBridge.exposeInMainWorld('electron', {
-  minimize: () => ipcRenderer.send('minimize'),
-  maximize: () => ipcRenderer.send('maximize'),
-  close: () => ipcRenderer.send('close')
+  minimize: () => ipcRenderer.send("minimize"),
+  maximize: () => ipcRenderer.send("maximize"),
+  close: () => ipcRenderer.send("close")
 });
+
+
+// const { contextBridge, ipcRenderer } = require('electron');
+// contextBridge.exposeInMainWorld('electron', {
+//   minimize: () => ipcRenderer.send('minimize'),
+//   maximize: () => ipcRenderer.send('maximize'),
+//   close: () => ipcRenderer.send('close')
+// });
+
+
 
