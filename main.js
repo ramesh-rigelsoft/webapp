@@ -1,58 +1,51 @@
 const { app, BrowserWindow, ipcMain, screen,Menu,session   } = require("electron");
 const path = require("path");
-const menu = Menu.buildFromTemplate([
-  {
-    label: "Online",
-    submenu: [
-      {
-        label: "Online",
-        click() {
-          win.loadURL("http://localhost:8091/login");
-        }
-      },
-      {
-        label: "Offline",
-        click() {
-          win.loadURL("http://localhost:5173/cms-ui/");
-        }
-      }
-    ]
-  },
-  {
-    label: "Refresh",
-    accelerator: "CmdOrCtrl+R",
-    click: () => win.reload()
-  },
-  {
-    label: "Clear Cache",
-    accelerator: "CmdOrCtrl+Shift+R",
-    click: async () => {
-      try {
-        const ses = session.defaultSession;
 
+let isOnline = true;
+
+function buildMenu() {
+  return Menu.buildFromTemplate([
+    {
+      label: isOnline ? "Online (Active)" : "Offline (Active)",
+      submenu: [
+        {
+          label: "Go Online",
+          click() {
+            isOnline = true;
+            win.loadURL("http://localhost:8091/login");
+            Menu.setApplicationMenu(buildMenu());
+          }
+        },
+        {
+          label: "Go Offline",
+          click() {
+            isOnline = false;
+            win.loadURL("http://localhost:5173/cms-ui/");
+            Menu.setApplicationMenu(buildMenu());
+          }
+        }
+      ]
+    },
+    {
+      label: "Refresh",
+      accelerator: "CmdOrCtrl+R",
+      click: () => win.reload()
+    },
+    {
+      label: "Clear Cache",
+      accelerator: "CmdOrCtrl+Shift+R",
+      click: async () => {
+        const ses = session.defaultSession;
         await ses.clearCache();
         await ses.clearStorageData({
-          storages: [
-            "cookies",
-            "localstorage",
-            "indexdb",
-            "serviceworkers"
-          ]
+          storages: ["cookies", "localstorage", "indexdb", "serviceworkers"]
         });
-
-        console.log("Cache Cleared");
-
-        if (win) {
-          win.reload();
-        }
-      } catch (err) {
-        console.error("Cache clear error:", err);
+        win.reload();
       }
     }
-  }
-]);
-
-Menu.setApplicationMenu(menu);
+  ]);
+}
+Menu.setApplicationMenu(buildMenu());
 
 let win;
 let gstWindow;
