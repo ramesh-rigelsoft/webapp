@@ -3,6 +3,9 @@
 # dependencies
 /node_modules
 /dist
+/jre
+/lib
+/backend
 
 # testing
 /coverage

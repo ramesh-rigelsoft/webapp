@@ -1,8 +1,67 @@
 const { app, BrowserWindow, ipcMain, screen,Menu,session,net    } = require("electron");
 const path = require("path");
-const { startBackend, stopBackend,waitForBackend} = require("./backend/backend");
-
+const fs = require("fs");
+const { startBackend, stopBackend,waitForBackend} = require("./backend");
+const log = require('electron-log');
 const BASE_URL_ONLINE="http://localhost:5173/cms-ui/";
+let loaderWindow = null;
+
+
+// ===== LOG FILE =====
+log.transports.file.resolvePath = () =>
+  path.join(app.getPath("userData"), "logs", "main.log");
+
+log.transports.file.level = "info";
+log.transports.console.level = "debug";
+
+log.catchErrors({
+  showDialog: false
+});
+
+
+app.whenReady().then(() => {
+
+  log.info("========== APP START ==========");
+
+   const dbDir = path.join(app.getPath("userData"), "data");
+
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+
+  // ❌ JS CRASH
+  process.on("uncaughtException", (err) => {
+    log.error("UNCaught Exception:", err);
+  });
+
+  // ❌ PROMISE CRASH
+  process.on("unhandledRejection", (reason) => {
+    log.error("Unhandled Rejection:", reason);
+  });
+
+  // ⚠️ WARNINGS
+  process.on("warning", (w) => {
+    log.warn("Warning:", w);
+  });
+
+  // 💻 ELECTRON EVENTS
+  app.on("render-process-gone", (event, webContents, details) => {
+    log.error("Renderer Crashed:", details);
+  });
+
+  app.on("child-process-gone", (event, details) => {
+    log.error("Child Process Crashed:", details);
+  });
+
+  app.on("before-quit", () => log.info("Before Quit"));
+  app.on("will-quit", () => log.info("Will Quit"));
+  app.on("quit", () => log.info("Quit"));
+
+});
+
+////-------------------------------------
+
+/////log part end
 
 // top part :--------------------
   
@@ -50,9 +109,6 @@ function createWindow() {
   // top part end
 
 
-// app.whenReady().then(async () => {
-//   await startBackend();
-// });
 
 app.on("before-quit", () => {
   stopBackend();
@@ -79,20 +135,24 @@ function buildMenu() {
           label: "Go Offline",
           click: async () => {
               try {
-
                 isOnline = false;
-                showLoader(win); 
-                stopBackend();
-                await startBackend();
 
-                await waitForBackend(8088);  // 🔥 IMPORTANT FIX
-                 hideLoader();
-                await win.loadURL("http://localhost:8088/login");
+                showLoader(win);   // 👈 FIRST show immediately
 
-                Menu.setApplicationMenu(buildMenu());
+                setImmediate(async () => {
+                  stopBackend();
+                  await startBackend();
+                  await waitForBackend(8088);
+
+                  hideLoader();
+
+                  win.loadURL("http://localhost:8088/login");
+                  Menu.setApplicationMenu(buildMenu());
+                });
 
               } catch (err) {
                 console.error(err);
+                hideLoader();
               }
             }
         }
@@ -363,7 +423,6 @@ app.on("window-all-closed", () => {
 });
 
 // loader part start 
-let loaderWindow = null;
 
 function showLoader(parentWindow = null) {
     try {

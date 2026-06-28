@@ -7,19 +7,31 @@
     "start": "electron .",
     "dist": "electron-builder"
   },
-   "build": {
+  "build": {
     "appId": "com.rigel.eims.desktop",
     "productName": "RigelEIMS",
+    "asar": true,
+    "extraResources": [
+    {
+      "from": "backend",
+      "to": "backend"
+    },
+    {
+      "from": "secret",
+      "to": "secret"
+    },
+    {
+      "from": "jre",
+      "to": "jre"
+    }],
     "win": {
       "target": "nsis",
       "icon": "./logo/logo.ico"
     },
-
     "linux": {
       "target": "AppImage",
       "icon": "./logo/logo.ico"
     },
-
     "mac": {
       "target": "dmg",
       "icon": "./logo/logo.ico"
@@ -30,7 +42,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "license": "./license.txt"  
+      "license": "./license.txt"
     }
   },
   "keywords": [],
@@ -40,5 +52,8 @@
   "devDependencies": {
     "electron": "^42.5.0",
     "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.4"
   }
 }

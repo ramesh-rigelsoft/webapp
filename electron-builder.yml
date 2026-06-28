@@ -1,13 +1,21 @@
-appId: com.company.myapp
+# appId: com.company.myapp
+# productName: Raipur Project # Aapke folder ka naam Raipur_Project dikh raha hai
 
-files:
-  - dist/**
-  - electron/**
+# files:
+#   - package.json
+#   - main.js         # Agar aapki main file ka naam main.js hai
+#   - preload.js
+#   - backend.js
+#   - index.html      # Jo bhi files UI/loader ke liye chahiye
+#   - loader.html
+#   - serverdown.html
+#   - offline.html
+#   - style.css       # Agar stylesheets root me hain
 
-extraResources:
-  - from: backend/app.jar
-    to: backend/app.jar
+# extraResources:
+#   - from: "app-backend.jar"
+#     to: "app-backend.jar"
 
-  # Agar bundled JRE use kar rahe ho
-  - from: jre
-    to: jre
+#   # Logo image ko resources me copy karne ke liye
+#   - from: "logo.ico"   # Verify karein ki extension .png hai ya .ico
+#     to: "logo.ico"
