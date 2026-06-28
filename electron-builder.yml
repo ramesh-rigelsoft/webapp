@@ -1,0 +1,13 @@
+appId: com.company.myapp
+
+files:
+  - dist/**
+  - electron/**
+
+extraResources:
+  - from: backend/app.jar
+    to: backend/app.jar
+
+  # Agar bundled JRE use kar rahe ho
+  - from: jre
+    to: jre

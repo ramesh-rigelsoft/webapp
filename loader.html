@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body{
+    margin:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:Arial;
+    background:#ffffff;
+}
+
+.loader{
+    width:50px;
+    height:50px;
+    border:6px solid #ddd;
+    border-top:6px solid #0d6efd;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div style="text-align:center">
+    <div class="loader"></div>
+    <h3>Starting Offline Mode...</h3>
+</div>
+
+</body>
+</html>

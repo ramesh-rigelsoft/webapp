@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Server Down</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .container {
+      padding: 40px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      max-width: 420px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 15px;
+      opacity: 0.8;
+      line-height: 1.5;
+    }
+
+    .icon {
+      font-size: 50px;
+      margin-bottom: 10px;
+      animation: shake 1.2s infinite;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: #ef4444;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #dc2626;
+    }
+
+    .small {
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="icon">⚠️</div>
+    <h1>Server is Down</h1>
+    <p>
+      We are unable to connect to the server.<br>
+      Please check your backend (localhost / API) and try again.
+    </p>
+
+    <button onclick="location.reload()">Retry</button>
+
+    <div class="small">
+      Error: Connection refused / Server not reachable
+    </div>
+  </div>
+
+</body>
+</html>

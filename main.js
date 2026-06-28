@@ -1,5 +1,63 @@
-const { app, BrowserWindow, ipcMain, screen,Menu,session   } = require("electron");
+const { app, BrowserWindow, ipcMain, screen,Menu,session,net    } = require("electron");
 const path = require("path");
+const { startBackend, stopBackend,waitForBackend} = require("./backend/backend");
+
+const BASE_URL_ONLINE="http://localhost:5173/cms-ui/";
+
+// top part :--------------------
+  
+
+let win;
+let gstWindow;
+
+function createWindow() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  const iconPath = path.join(__dirname, "logo.ico");
+  console.log("ICON PATH:", iconPath);
+  win = new BrowserWindow({
+    width,
+    height,
+    icon: iconPath,
+    resizable: false, 
+      
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+
+ // ✅ attach FIRST
+  win.webContents.on("did-fail-load", (event, errorCode, errorDescription) => {
+    console.log("Load failed:", errorCode, errorDescription);
+
+    if (
+      errorCode === -102 ||  // connection refused
+      errorCode === -106 ||  // internet down
+      errorCode === -105     // DNS fail
+    ) {
+      win.loadFile("serverdown.html");
+    }
+  });
+
+  // ✅ then load
+  win.loadURL(BASE_URL_ONLINE);
+
+ }
+
+  app.whenReady().then(createWindow);
+
+  // top part end
+
+
+// app.whenReady().then(async () => {
+//   await startBackend();
+// });
+
+app.on("before-quit", () => {
+  stopBackend();
+});
+
 
 let isOnline = true;
 
@@ -10,19 +68,33 @@ function buildMenu() {
       submenu: [
         {
           label: "Go Online",
-          click() {
+          click: async () => {
             isOnline = true;
-            win.loadURL("http://localhost:8091/login");
+            stopBackend();
+            win.loadURL(BASE_URL_ONLINE);
             Menu.setApplicationMenu(buildMenu());
           }
         },
         {
           label: "Go Offline",
-          click() {
-            isOnline = false;
-            win.loadURL("http://localhost:5173/cms-ui/");
-            Menu.setApplicationMenu(buildMenu());
-          }
+          click: async () => {
+              try {
+
+                isOnline = false;
+                showLoader(win); 
+                stopBackend();
+                await startBackend();
+
+                await waitForBackend(8088);  // 🔥 IMPORTANT FIX
+                 hideLoader();
+                await win.loadURL("http://localhost:8088/login");
+
+                Menu.setApplicationMenu(buildMenu());
+
+              } catch (err) {
+                console.error(err);
+              }
+            }
         }
       ]
     },
@@ -47,27 +119,59 @@ function buildMenu() {
 }
 Menu.setApplicationMenu(buildMenu());
 
-let win;
-let gstWindow;
+let offlineWindow = null;
 
-function createWindow() {
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+function closeOfflineWindow() {
+  if (offlineWindow) {
+    offlineWindow.close();
+    offlineWindow = null;
+  }
+} 
 
-  win = new BrowserWindow({
-    width,
-    height,
+async function isRealOnline() {
+  try {
+    await fetch("https://clients3.google.com/generate_204", {
+      cache: "no-store",
+      mode: "no-cors"
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function createOfflineWindow() {
+  if (offlineWindow) return;
+
+  offlineWindow = new BrowserWindow({
+    width: 500,
+    height: 300,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    skipTaskbar: true,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-      contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: true,
+      contextIsolation: false
     }
   });
+  offlineWindow.loadFile("offline.html");
+  
+}
 
-  // 👉 React app open
-  win.loadURL("http://localhost:8091/addVender");
+setInterval(async () => {
+  const online = await isRealOnline();
+
+  // console.log("Internet:", online);
+
+  if (!online) {
+    createOfflineWindow();
+  } else {
+    closeOfflineWindow();
   }
+}, 3000);
 
-  app.whenReady().then(createWindow);
+
 
   /* ===============================
     GST PORTAL OPEN + FOCUS + FILL
@@ -85,6 +189,7 @@ function createWindow() {
       height: 800,
       parent: win,
       modal: false,
+      resizable: false, 
       autoHideMenuBar: true,
       webPreferences: {
           preload: path.join(__dirname, "preload.js"),
@@ -224,7 +329,7 @@ return result;
   } catch (err) {
     console.error('open-gst-portal error', err);
     // try to return to React UI even on error
-    try { await win.loadURL("http://localhost:8091/addVender"); win.focus(); } catch(e){}
+    // try { await win.loadURL("https://cid.cg.gov.in/"); win.focus(); } catch(e){}
     throw err;
   }
 });
@@ -256,3 +361,53 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+// loader part start 
+let loaderWindow = null;
+
+function showLoader(parentWindow = null) {
+    try {
+
+        if (loaderWindow && !loaderWindow.isDestroyed()) {
+            return;
+        }
+
+        loaderWindow = new BrowserWindow({
+            width: 350,
+            height: 180,
+            parent: parentWindow,   // win ki jagah parentWindow
+            modal: !!parentWindow,
+            frame: false,
+            resizable: false,
+            alwaysOnTop: false,
+            skipTaskbar: true,
+            webPreferences: {
+                contextIsolation: true
+            }
+        });
+
+        loaderWindow.loadFile(path.join(__dirname, "./loader.html"));
+
+        loaderWindow.on("closed", () => {
+            loaderWindow = null;
+        });
+
+    } catch (err) {
+        console.error("❌ Error showing loader:", err);
+    }
+}
+
+function hideLoader() {
+    try {
+
+        if (loaderWindow && !loaderWindow.isDestroyed()) {
+            loaderWindow.close();
+        }
+
+        loaderWindow = null;
+
+    } catch (err) {
+        console.error("❌ Error hiding loader:", err);
+    }
+}
+// loader part end
